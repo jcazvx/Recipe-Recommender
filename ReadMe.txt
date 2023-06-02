@@ -1,2 +1,2 @@
-Group 3 project repository
+Recipie Recommender Project repository ReadMe
 
