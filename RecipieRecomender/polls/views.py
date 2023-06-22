@@ -6,3 +6,6 @@ def index(request):
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index. This is Jade.")
+
+def index(request):
+    return HttpResponse("Hello, world. You're at the polls index. This is Kunle.")
