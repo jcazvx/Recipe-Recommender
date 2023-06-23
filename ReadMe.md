@@ -12,7 +12,7 @@ Further customization filters can be applied to find the perfect recipe.
 
 # **Milestone Code 1** <br>
 At this stage, We have setup a webpage for the the App with general funtionalities such Admin login and update.<br>
-We have also included Add ingredients function, which will allow the user to supply the available ingredients for processing.<br> 
+We have also included Add recipes function, which will allow the application to store available recipes for processing.<br> 
 
 We use the following websites to gather information:<br>
 [Django Tutorial](https://www.djangotutorial.com)<br>
