@@ -37,18 +37,21 @@ class MyAppState extends ChangeNotifier {
   }
 
   var favorites = <WordPair>[];
+  var Ilist = <String>[];
 
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
+  // void toggleFavorite() {
+  //   if (favorites.contains(current)) {
+  //     favorites.remove(current);
+  //   } else {
+  //     favorites.add(current);
+  //   }
+  //   notifyListeners();
+  // }
+
+  void addIngredient(item) {
+    Ilist.add(item);
   }
 }
-
-// ...
 
 class MyHomePage extends StatefulWidget {
   @override
@@ -66,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
-        page = Placeholder();
+        page = FavoritesPage();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -86,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   NavigationRailDestination(
                     icon: Icon(Icons.favorite),
-                    label: Text('Favorites'),
+                    label: Text('Ingredients List'),
                   ),
                 ],
                 selectedIndex: selectedIndex,
@@ -100,7 +103,7 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: Container(
                 color: Color.fromRGBO(0, 0, 0, 1),
-                child: page, // ← Here.
+                child: page,
               ),
             ),
           ],
@@ -128,14 +131,14 @@ class GeneratorPage extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           IngredientInputBox(),
-          // BigCard(pair: pair),
+          BigCard(pair: pair),
           SizedBox(height: 10),
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               ElevatedButton.icon(
                 onPressed: () {
-                  appState.toggleFavorite();
+                  // appState.toggleFavorite();
                 },
                 icon: Icon(icon),
                 label: Text('Like'),
@@ -162,6 +165,8 @@ class IngredientInputBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
     return SizedBox(
       width: 250,
       child: TextField(
@@ -172,6 +177,7 @@ class IngredientInputBox extends StatelessWidget {
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
         onSubmitted: (String value) async {
+          appState.addIngredient(value);
           await showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -218,6 +224,43 @@ class BigCard extends StatelessWidget {
           semanticsLabel: "${pair.first} ${pair.second}",
         ),
       ),
+    );
+  }
+}
+
+class FavoritesPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    var appState = context.watch<MyAppState>();
+
+    if (appState.favorites.isEmpty) {
+      return Center(
+        child: Text(
+          "You have no ingredients",
+          style: TextStyle(
+            color: Color.fromRGBO(255, 255, 255, 1),
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Text(
+            'You have '
+            '${appState.Ilist.length} ingredients:',
+            style: TextStyle(color: Color.fromRGBO(255, 255, 255, 1)),
+          ),
+        ),
+        for (var ingredient in appState.Ilist)
+          ListTile(
+            textColor: Color.fromRGBO(255, 255, 255, 1),
+            leading: Icon(Icons.favorite),
+            title: Text(ingredient),
+          ),
+      ],
     );
   }
 }
