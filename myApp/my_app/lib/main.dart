@@ -39,17 +39,41 @@ class MyAppState extends ChangeNotifier {
   var favorites = <WordPair>[];
   var Ilist = <String>[];
 
-  // void toggleFavorite() {
-  //   if (favorites.contains(current)) {
-  //     favorites.remove(current);
-  //   } else {
-  //     favorites.add(current);
-  //   }
-  //   notifyListeners();
-  // }
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 
   void addIngredient(item) {
     Ilist.add(item);
+    for (var item in Ilist) {
+      notifyListeners();
+    }
+  }
+
+  void writeToFile(var lines) async {
+    var file = await File("lib/Ingredients.txt")
+        .writeAsString(lines + "\n", mode: FileMode.append);
+    print(lines + "\n");
+    notifyListeners();
+  }
+
+  String readFile() {
+    File("lib/Ingredients.txt").readAsLines().then((var contents) {
+      if (contents.isEmpty) {
+        return "No ingredients";
+      } else {
+        print(Ilist);
+        Ilist = contents;
+        return contents;
+      }
+    });
+    // notifyListeners();
+    return "";
   }
 }
 
@@ -128,30 +152,29 @@ class GeneratorPage extends StatelessWidget {
 
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          IngredientInputBox(),
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  // appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: IngredientInputBox(),
           ),
+          SizedBox(height: 10),
+
+          // ElevatedButton.icon(
+          //   onPressed: () {
+          //     // appState.toggleFavorite();
+          //   },
+          //   icon: Icon(icon),
+          //   label: Text('Like'),
+          // ),
+          // SizedBox(width: 10),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     appState.getNext();
+          //   },
+          //   child: Text('Next'),
+          // ),
         ],
       ),
     );
@@ -177,7 +200,9 @@ class IngredientInputBox extends StatelessWidget {
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
         onSubmitted: (String value) async {
-          appState.addIngredient(value);
+          // appState.addIngredient(value);
+          appState.writeToFile(value);
+          appState.readFile();
           await showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -232,8 +257,8 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
+    appState.readFile();
+    if (appState.Ilist.isEmpty) {
       return Center(
         child: Text(
           "You have no ingredients",
