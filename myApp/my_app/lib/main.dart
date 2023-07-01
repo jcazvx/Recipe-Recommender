@@ -39,17 +39,20 @@ class MyAppState extends ChangeNotifier {
   var favorites = <WordPair>[];
   var Ilist = <String>[];
 
-  // void toggleFavorite() {
-  //   if (favorites.contains(current)) {
-  //     favorites.remove(current);
-  //   } else {
-  //     favorites.add(current);
-  //   }
-  //   notifyListeners();
-  // }
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 
   void addIngredient(item) {
     Ilist.add(item);
+    for (var item in Ilist) {
+      print(item);
+    }
   }
 }
 
@@ -128,30 +131,29 @@ class GeneratorPage extends StatelessWidget {
 
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          IngredientInputBox(),
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  // appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: IngredientInputBox(),
           ),
+          SizedBox(height: 10),
+
+          // ElevatedButton.icon(
+          //   onPressed: () {
+          //     // appState.toggleFavorite();
+          //   },
+          //   icon: Icon(icon),
+          //   label: Text('Like'),
+          // ),
+          // SizedBox(width: 10),
+          // ElevatedButton(
+          //   onPressed: () {
+          //     appState.getNext();
+          //   },
+          //   child: Text('Next'),
+          // ),
         ],
       ),
     );
@@ -233,7 +235,7 @@ class FavoritesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
 
-    if (appState.favorites.isEmpty) {
+    if (appState.Ilist.isEmpty) {
       return Center(
         child: Text(
           "You have no ingredients",
