@@ -51,8 +51,29 @@ class MyAppState extends ChangeNotifier {
   void addIngredient(item) {
     Ilist.add(item);
     for (var item in Ilist) {
-      print(item);
+      notifyListeners();
     }
+  }
+
+  void writeToFile(var lines) async {
+    var file = await File("lib/Ingredients.txt")
+        .writeAsString(lines + "\n", mode: FileMode.append);
+    print(lines + "\n");
+    notifyListeners();
+  }
+
+  String readFile() {
+    File("lib/Ingredients.txt").readAsLines().then((var contents) {
+      if (contents.isEmpty) {
+        return "No ingredients";
+      } else {
+        print(Ilist);
+        Ilist = contents;
+        return contents;
+      }
+    });
+    // notifyListeners();
+    return "";
   }
 }
 
@@ -179,7 +200,9 @@ class IngredientInputBox extends StatelessWidget {
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
         onSubmitted: (String value) async {
-          appState.addIngredient(value);
+          // appState.addIngredient(value);
+          appState.writeToFile(value);
+          appState.readFile();
           await showDialog(
               context: context,
               builder: (BuildContext context) {
@@ -234,7 +257,7 @@ class FavoritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-
+    appState.readFile();
     if (appState.Ilist.isEmpty) {
       return Center(
         child: Text(
