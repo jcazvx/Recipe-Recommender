@@ -19,9 +19,9 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Namer App',
         theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
-        ),
+            useMaterial3: true,
+            colorScheme: ColorScheme.fromSeed(seedColor: Colors.black),
+            scaffoldBackgroundColor: const Color.fromRGBO(255, 255, 255, 0)),
         home: MyHomePage(),
       ),
     );
@@ -126,7 +126,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Expanded(
               child: Container(
-                color: Color.fromRGBO(0, 0, 0, 1),
                 child: page,
               ),
             ),
@@ -137,19 +136,15 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class GeneratorPage extends StatelessWidget {
+class GeneratorPage extends StatefulWidget {
+  @override
+  State<GeneratorPage> createState() => _GeneratorPageState();
+}
+
+class _GeneratorPageState extends State<GeneratorPage> {
   @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -160,6 +155,10 @@ class GeneratorPage extends StatelessWidget {
             child: IngredientInputBox(),
           ),
           SizedBox(height: 10),
+          SizedBox(
+            child: IngredientShowcase(appState),
+            height: 580,
+          ),
 
           // ElevatedButton.icon(
           //   onPressed: () {
@@ -178,6 +177,39 @@ class GeneratorPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget IngredientShowcase(MyAppState appState) {
+    if (appState.Ilist.isEmpty) {
+      return Center(
+        child: Text(
+          "You have no ingredients",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    } else {
+      return (Container(
+          height: 592,
+          child: SingleChildScrollView(
+            child: Column(children: [
+              for (var ingredient in appState.Ilist)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    visualDensity: VisualDensity(horizontal: .5),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: Color.fromRGBO(0, 255, 0, .5), width: 2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textColor: Color.fromRGBO(255, 255, 255, 1),
+                    leading: Icon(Icons.favorite),
+                    title: Text(ingredient),
+                  ),
+                ),
+            ]),
+          )));
+    }
   }
 }
 
@@ -200,7 +232,6 @@ class IngredientInputBox extends StatelessWidget {
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
         onSubmitted: (String value) async {
-          // appState.addIngredient(value);
           appState.writeToFile(value);
           appState.readFile();
           await showDialog(
@@ -280,10 +311,19 @@ class FavoritesPage extends StatelessWidget {
           ),
         ),
         for (var ingredient in appState.Ilist)
-          ListTile(
-            textColor: Color.fromRGBO(255, 255, 255, 1),
-            leading: Icon(Icons.favorite),
-            title: Text(ingredient),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListTile(
+              visualDensity: VisualDensity(horizontal: .5),
+              shape: RoundedRectangleBorder(
+                side:
+                    BorderSide(color: Color.fromRGBO(0, 255, 0, .5), width: 2),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              textColor: Color.fromRGBO(255, 255, 255, 1),
+              leading: Icon(Icons.favorite),
+              title: Text(ingredient),
+            ),
           ),
       ],
     );
