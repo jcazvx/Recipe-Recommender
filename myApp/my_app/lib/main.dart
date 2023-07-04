@@ -6,7 +6,16 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 
 void main() {
-  runApp(MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (context) {
+        var appState = MyAppState();
+        appState.readFile(); // Call readFile to populate Ilist
+        return appState;
+      },
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -38,6 +47,7 @@ class MyAppState extends ChangeNotifier {
 
   var favorites = <WordPair>[];
   var Ilist = <String>[];
+  var inventoryList = <Ingredient>[];
 
   void toggleFavorite() {
     if (favorites.contains(current)) {
@@ -62,18 +72,24 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  String readFile() {
-    File("lib/Ingredients.txt").readAsLines().then((var contents) {
-      if (contents.isEmpty) {
-        return "No ingredients";
-      } else {
-        print(Ilist);
-        Ilist = contents;
-        return contents;
+  void readFile() async {
+    try {
+      var file = File("lib/ingredients.txt");
+      if (await file.exists()) {
+        var contents = await file.readAsLines();
+        if (contents.isNotEmpty) {
+          inventoryList = contents.map((ingredientName) {
+            var ingredient = Ingredient();
+            ingredient.name = ingredientName;
+            print(inventoryList);
+            return ingredient;
+          }).toList();
+        }
       }
-    });
-    // notifyListeners();
-    return "";
+    } catch (e) {
+      print("Error reading file: $e");
+    }
+    notifyListeners();
   }
 }
 
@@ -93,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = GeneratorPage();
         break;
       case 1:
-        page = FavoritesPage();
+        page = Placeholder();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
@@ -180,7 +196,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   }
 
   Widget IngredientShowcase(MyAppState appState) {
-    if (appState.Ilist.isEmpty) {
+    if (appState.inventoryList.isEmpty) {
       return Center(
         child: Text(
           "You have no ingredients",
@@ -188,27 +204,32 @@ class _GeneratorPageState extends State<GeneratorPage> {
         ),
       );
     } else {
-      return (Container(
-          height: 592,
-          child: SingleChildScrollView(
-            child: Column(children: [
-              for (var ingredient in appState.Ilist)
+      return Container(
+        height: 592,
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              for (var ingredient in appState.inventoryList)
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ListTile(
                     visualDensity: VisualDensity(horizontal: .5),
                     shape: RoundedRectangleBorder(
                       side: BorderSide(
-                          color: Color.fromRGBO(0, 255, 0, .5), width: 2),
+                        color: Color.fromRGBO(0, 255, 0, .5),
+                        width: 2,
+                      ),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     textColor: Color.fromRGBO(255, 255, 255, 1),
                     leading: Icon(Icons.favorite),
-                    title: Text(ingredient),
+                    title: Text(ingredient.name),
                   ),
                 ),
-            ]),
-          )));
+            ],
+          ),
+        ),
+      );
     }
   }
 }
@@ -251,34 +272,6 @@ class IngredientInputBox extends StatelessWidget {
                 );
               });
         },
-      ),
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-    return Card(
-      color: theme.colorScheme.onPrimary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(
-          pair.asLowerCase,
-          style: TextStyle(color: Color.fromRGBO(0, 0, 0, 1)),
-          semanticsLabel: "${pair.first} ${pair.second}",
-        ),
       ),
     );
   }
@@ -327,5 +320,31 @@ class FavoritesPage extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+class Ingredient {
+  String _name = "";
+
+  String get name => _name;
+
+  set name(String value) {
+    _name = value;
+  }
+
+  DateTime _date = DateTime.now();
+
+  DateTime get date => _date;
+
+  set date(DateTime value) {
+    _date = value;
+  }
+
+  int _quantity = 0;
+
+  int get quantity => _quantity;
+
+  set quantity(int value) {
+    _quantity = value;
   }
 }

@@ -11,3 +11,9 @@ sugar
 ground beef
 porkchop
 pepper
+Sandwich
+chocolate
+Salt
+Pepper
+Cinnamon
+Pickle
