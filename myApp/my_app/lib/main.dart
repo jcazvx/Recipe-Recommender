@@ -58,17 +58,10 @@ class MyAppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addIngredient(item) {
-    Ilist.add(item);
-    for (var item in Ilist) {
-      notifyListeners();
-    }
-  }
-
-  void writeToFile(var lines) async {
-    var file = await File("lib/Ingredients.txt")
-        .writeAsString(lines + "\n", mode: FileMode.append);
-    print(lines + "\n");
+  Future<void> writeToFile(String name, DateTime date) async {
+    final file = File("lib/Ingredients.txt");
+    await file.writeAsString('$name,${date.toString()}\n',
+        mode: FileMode.append);
     notifyListeners();
   }
 
@@ -80,8 +73,10 @@ class MyAppState extends ChangeNotifier {
         if (contents.isNotEmpty) {
           inventoryList = contents.map((ingredientName) {
             var ingredient = Ingredient();
-            ingredient.name = ingredientName;
-            print(inventoryList);
+            var ingredientData = ingredientName.split(",");
+            ingredient.name = ingredientData[0];
+            ingredient.date = DateTime.parse(ingredientData[1]);
+            print(ingredientData);
             return ingredient;
           }).toList();
         }
@@ -204,45 +199,74 @@ class _GeneratorPageState extends State<GeneratorPage> {
         ),
       );
     } else {
+      DateTime today = DateTime.now();
+      List<Widget> ingredientListTiles = [];
+
+      for (var ingredient in appState.inventoryList) {
+        DateTime expirationDate = ingredient.date;
+        Duration difference = expirationDate.difference(today);
+        int expireDays = difference.inDays;
+        bool isExpired = expirationDate.isBefore(DateTime.now());
+        String expirationText =
+            isExpired ? 'Expired' : 'Expires on ${expirationDate.toString()}';
+
+        Widget ingredientTile = Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ListTile(
+            visualDensity: VisualDensity(horizontal: .5),
+            shape: RoundedRectangleBorder(
+              side: BorderSide(
+                color: getColor(expireDays),
+                width: 2,
+              ),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            textColor: Color.fromRGBO(255, 255, 255, 1),
+            leading: Icon(Icons.favorite),
+            title: Text(ingredient.name),
+            subtitle: Text(expirationText),
+          ),
+        );
+
+        ingredientListTiles.add(ingredientTile);
+      }
+
       return Container(
         height: 592,
         child: SingleChildScrollView(
           child: Column(
-            children: [
-              for (var ingredient in appState.inventoryList)
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListTile(
-                    visualDensity: VisualDensity(horizontal: .5),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(
-                        color: Color.fromRGBO(0, 255, 0, .5),
-                        width: 2,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    textColor: Color.fromRGBO(255, 255, 255, 1),
-                    leading: Icon(Icons.favorite),
-                    title: Text(ingredient.name),
-                  ),
-                ),
-            ],
+            children: ingredientListTiles,
           ),
         ),
       );
     }
   }
+
+  Color getColor(int number) {
+    if (number < 2) {
+      return Colors.red;
+    } else if (number < 7) {
+      return Colors.yellow;
+    } else {
+      return Colors.green;
+    }
+  }
 }
 
-class IngredientInputBox extends StatelessWidget {
+class IngredientInputBox extends StatefulWidget {
   const IngredientInputBox({
     super.key,
   });
 
   @override
+  State<IngredientInputBox> createState() => _IngredientInputBoxState();
+}
+
+class _IngredientInputBoxState extends State<IngredientInputBox> {
+  @override
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
-
+    DateTime? selectedDate;
     return SizedBox(
       width: 250,
       child: TextField(
@@ -252,15 +276,35 @@ class IngredientInputBox extends StatelessWidget {
         autocorrect: true,
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
-        onSubmitted: (String value) async {
-          appState.writeToFile(value);
+        onSubmitted: (String ingredientName) async {
           appState.readFile();
           await showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
                   title: const Text('Thanks!'),
-                  content: Text('You added $value, to your kitchen inventory.'),
+                  content: ElevatedButton(
+                    child: Text('Select expiration date'),
+                    onPressed: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime.now(),
+                        firstDate: DateTime.now(),
+                        lastDate: DateTime(2100),
+                      );
+
+                      if (pickedDate != null) {
+                        setState(() {
+                          selectedDate = pickedDate;
+                        });
+                        DateTime expirationDate = pickedDate;
+                        appState.writeToFile(ingredientName, expirationDate);
+                      }
+
+                      Navigator.of(context).pop();
+                    },
+                    // onEditingComplete: Navigator.of(context).pop,
+                  ),
                   actions: <Widget>[
                     TextButton(
                       onPressed: () {

@@ -1,19 +1,6 @@
-banana
-apple
-rattata
-dog
-gator
-fruit
-chicken
-cricket
-run
-sugar
-ground beef
-porkchop
-pepper
-Sandwich
-chocolate
-Salt
-Pepper
-Cinnamon
-Pickle
+apples,2023-07-12 00:00:00.000
+Bananas,2023-07-11 00:00:00.000
+cherries,2023-07-19 00:00:00.000
+avocado,2023-07-06 00:00:00.000
+Mango,2023-07-11 00:00:00.000
+Lemons,2023-07-31 00:00:00.000
