@@ -320,7 +320,7 @@ class _IngredientInputBoxState extends State<IngredientInputBox> {
       ),
     );
   }
-} //Ingredient input box
+} //Ingredientinput box
 
 class FavoritesPage extends StatelessWidget {
   @override
