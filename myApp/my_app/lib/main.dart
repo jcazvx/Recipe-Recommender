@@ -161,13 +161,13 @@ class _GeneratorPageState extends State<GeneratorPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(12.0),
+            padding: const EdgeInsets.all(0.0),
             child: IngredientInputBox(),
           ),
           SizedBox(height: 10),
           SizedBox(
             child: IngredientShowcase(appState),
-            height: 580,
+            height: 600,
           ),
 
           // ElevatedButton.icon(
@@ -233,7 +233,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
       }
 
       return Container(
-        height: 592,
+        height: 600,
         child: SingleChildScrollView(
           child: Column(
             children: ingredientListTiles,
@@ -268,8 +268,9 @@ class _IngredientInputBoxState extends State<IngredientInputBox> {
   Widget build(BuildContext context) {
     var appState = context.watch<MyAppState>();
     DateTime? selectedDate;
-    return SizedBox(
-      width: 250,
+    return Container(
+      color: Colors.black,
+      width: 260,
       child: TextField(
         style: TextStyle(
           color: Color.fromRGBO(255, 255, 255, 1),
