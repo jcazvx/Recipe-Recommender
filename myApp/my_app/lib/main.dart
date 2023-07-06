@@ -76,7 +76,6 @@ class MyAppState extends ChangeNotifier {
             var ingredientData = ingredientName.split(",");
             ingredient.name = ingredientData[0];
             ingredient.date = DateTime.parse(ingredientData[1]);
-            print(ingredientData);
             return ingredient;
           }).toList();
         }
@@ -191,6 +190,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
   }
 
   Widget IngredientShowcase(MyAppState appState) {
+    appState.readFile();
     if (appState.inventoryList.isEmpty) {
       return Center(
         child: Text(
@@ -199,6 +199,7 @@ class _GeneratorPageState extends State<GeneratorPage> {
         ),
       );
     } else {
+      setState(() {});
       DateTime today = DateTime.now();
       List<Widget> ingredientListTiles = [];
 
@@ -277,12 +278,11 @@ class _IngredientInputBoxState extends State<IngredientInputBox> {
         decoration: InputDecoration(
             border: OutlineInputBorder(), labelText: "Enter Ingredients"),
         onSubmitted: (String ingredientName) async {
-          appState.readFile();
           await showDialog(
               context: context,
               builder: (BuildContext context) {
                 return AlertDialog(
-                  title: const Text('Thanks!'),
+                  title: Text('When does the ${ingredientName} expire?'),
                   content: ElevatedButton(
                     child: Text('Select expiration date'),
                     onPressed: () async {
@@ -309,8 +309,9 @@ class _IngredientInputBoxState extends State<IngredientInputBox> {
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
+                        appState.writeToFile(ingredientName, DateTime(2200));
                       },
-                      child: const Text('OK'),
+                      child: const Text('No expiration'),
                     ),
                   ],
                 );
