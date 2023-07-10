@@ -1,4 +1,4 @@
-# Recipie Recommender App.
+# Recipe Recommender App
 Coming up with meal ideas can be a challenging task, especially when trying to cater to children's preferences.<br>
 Parents face the daily dilemma of selecting recipes that will appeal to their children while also considering the nutritional value of the meals.<br>
 Additionally, there is the issue of forgetting to purchase necessary ingredients, which can pose a problem when preparing a meal within a limited timeframe.<br>
