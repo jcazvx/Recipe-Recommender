@@ -11,4 +11,4 @@ jobs:
       - image: cimg/node:14.13.0
     steps:
       - checkout
-      - run: node -- version
+      - run: node --version
