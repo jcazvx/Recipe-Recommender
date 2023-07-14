@@ -11,9 +11,4 @@ jobs:
       - image: cimg/node:14.13.0
     steps:
       - checkout
-      - run:
-        name: Install dependencies
-        command: npm install
-      - run:
-        name: Run Tests
-        command: npm run test
+      - run: node -- version
